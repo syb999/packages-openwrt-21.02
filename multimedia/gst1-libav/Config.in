@@ -79,7 +79,6 @@ comment "Decoders ---"
 
 config GST1_LIBAV_DECODER_aac
 	bool "AAC (Advanced Audio Coding)"
-	depends on GST1_LIBAV_PATENTED
 	select GST1_LIBAV_PARSER_aac
 
 config GST1_LIBAV_DECODER_ac3
@@ -121,7 +120,6 @@ config GST1_LIBAV_DECODER_mpeg4
 
 config GST1_LIBAV_DECODER_mpeg4aac
 	bool "MPEG-4 (AAC)"
-	depends on GST1_LIBAV_PATENTED
 
 config GST1_LIBAV_DECODER_pcm_s16be
 	bool "PCM signed 16-bit big-endian"

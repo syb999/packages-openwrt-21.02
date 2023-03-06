@@ -8,25 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gst1-plugins-base
-PKG_VERSION:=1.18.1
+PKG_VERSION:=1.16.2
 PKG_RELEASE:=1
-
-PKG_SOURCE:=gst-plugins-base-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gst-plugins-base
-PKG_HASH:=1ba654d7de30f7284b4c7071b32f881b609733ce02ab6d9d9ea29386a036c641
-PKG_BUILD_DIR:=$(BUILD_DIR)/gst-plugins-base-$(PKG_VERSION)
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org> \
 		Ted Hess <thess@kitschensync.net>
-PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later
+
+PKG_LICENSE:=LGPLv2 GPLv2
 PKG_LICENSE_FILES:=COPYING.LIB COPYING
 PKG_CPE_ID:=cpe:/a:gstreamer:gst-plugins-base
 
-PKG_INSTALL:=1
-
-include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/nls.mk
-include ../../devel/meson/meson.mk
+PKG_BUILD_DIR:=$(BUILD_DIR)/gst-plugins-base-$(PKG_VERSION)
+PKG_SOURCE:=gst-plugins-base-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gst-plugins-base
+PKG_HASH:=b13e73e2fe74a4166552f9577c3dcb24bed077021b9c7fa600d910ec6987816a
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_gst1-mod-alsa \
@@ -35,20 +30,22 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_gst1-mod-audiorate \
 	CONFIG_PACKAGE_gst1-mod-audioresample \
 	CONFIG_PACKAGE_gst1-mod-audiotestsrc \
-	CONFIG_PACKAGE_gst1-mod-playback \
 	CONFIG_PACKAGE_gst1-mod-gio \
 	CONFIG_PACKAGE_gst1-mod-ogg \
-	CONFIG_PACKAGE_gst1-mod-opus \
 	CONFIG_PACKAGE_gst1-mod-tcp \
 	CONFIG_PACKAGE_gst1-mod-theora \
-	CONFIG_PACKAGE_gst1-mod-typefind \
 	CONFIG_PACKAGE_gst1-mod-videoconvert \
-	CONFIG_PACKAGE_gst1-mod-videorate \
-	CONFIG_PACKAGE_gst1-mod-videoscale \
 	CONFIG_PACKAGE_gst1-mod-videotestsrc \
 	CONFIG_PACKAGE_gst1-mod-volume \
 	CONFIG_PACKAGE_gst1-mod-vorbis \
-	CONFIG_PACKAGE_libgst1app
+	CONFIG_PACKAGE_libgst1app \
+
+PKG_FIXUP:=autoreconf
+PKG_BUILD_PARALLEL:=1
+PKG_INSTALL:=1
+
+include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 GST_BASE_LIBS:=
 GST_BASE_MODULES:=
@@ -115,61 +112,58 @@ define Package/gstreamer1-plugins-base/config
 
 endef
 
-GST_COND_SELECT = -D$(1)=$(if $(CONFIG_PACKAGE_gst1-mod-$(1)),en,dis)abled
+define Package/gst-play-1.0
+  CATEGORY:=Multimedia
+  SECTION:=multimedia
+  TITLE+= gst-play
+  DEPENDS:=+ALL:gst1-plugins-base +gstreamer1-libs +$(GST_DEPENDS) +libgstreamer1 $(ICONV_DEPENDS)
+endef
+
+GST_COND_SELECT = $(patsubst %,$(if $(CONFIG_PACKAGE_gst1-mod-$(1)),--enable,--disable)-%,$(1))
 
 GST_VERSION:=1.0
 
-MESON_ARGS += \
-	-Daudioresample_format=int \
-	-Dgl=disabled \
+CONFIGURE_ARGS += \
+	--disable-debug \
+	--disable-examples \
+	--disable-fatal-warnings \
+	--disable-glib-asserts \
+	--disable-gobject-cast-checks \
+	--disable-gtk-doc-html \
+	--disable-introspection \
+	--disable-rpath \
+	--disable-valgrind \
+	--without-html-dir \
+	--with-pic \
 	\
-	$(call GST_COND_SELECT,adder) \
+	$(call GST_COND_SELECT,alsa) \
 	$(call GST_COND_SELECT,app) \
 	$(call GST_COND_SELECT,audioconvert) \
-	$(call GST_COND_SELECT,audiomixer) \
 	$(call GST_COND_SELECT,audiorate) \
 	$(call GST_COND_SELECT,audioresample) \
 	$(call GST_COND_SELECT,audiotestsrc) \
-	$(call GST_COND_SELECT,compositor) \
-	$(call GST_COND_SELECT,encoding) \
+	--disable-cdparanoia \
 	$(call GST_COND_SELECT,gio) \
-	$(call GST_COND_SELECT,overlaycomposition) \
-	$(call GST_COND_SELECT,pbtypes) \
-	$(call GST_COND_SELECT,playback) \
-	$(call GST_COND_SELECT,rawparse) \
-	$(call GST_COND_SELECT,subparse) \
+	--disable-libvisual \
+	$(call GST_COND_SELECT,ogg) \
+	--disable-pango \
+	--disable-subparse \
 	$(call GST_COND_SELECT,tcp) \
-	-Dtypefind=$(if $(CONFIG_PACKAGE_gst1-mod-typefindfunctions),en,dis)abled \
-	$(call GST_COND_SELECT,videoconvert) \
+	$(call GST_COND_SELECT,theora) \
 	$(call GST_COND_SELECT,videorate) \
 	$(call GST_COND_SELECT,videoscale) \
+	$(call GST_COND_SELECT,videoconvert) \
 	$(call GST_COND_SELECT,videotestsrc) \
 	$(call GST_COND_SELECT,volume) \
-	\
-	$(call GST_COND_SELECT,alsa) \
-	$(call GST_COND_SELECT,cdparanoia) \
-	$(call GST_COND_SELECT,libvisual) \
-	$(call GST_COND_SELECT,ogg) \
-	$(call GST_COND_SELECT,opus) \
-	$(call GST_COND_SELECT,pango) \
-	$(call GST_COND_SELECT,theora) \
-	$(call GST_COND_SELECT,tremor) \
-	-Dtremor=$(if $(CONFIG_PACKAGE_gst1-mod-ivorbisdec),en,dis)abled \
 	$(call GST_COND_SELECT,vorbis) \
-	-Dx11=disabled \
-	-Dxshm=disabled \
-	-Dxvideo=disabled \
+	--disable-x \
+	--disable-xshm \
+	--disable-xvideo \
 	\
-	-Dexamples=disabled \
-	-Dtests=disabled \
-	-Dtools=disabled \
-	-Dintrospection=disabled \
-	-Dnls=enabled \
-	-Dorc=disabled \
-	-Dgobject-cast-checks=disabled \
-	-Dglib-asserts=disabled \
-	-Dglib-checks=disabled \
-	-Ddoc=disabled
+	--without-libiconv-prefix \
+	--without-libintl-prefix \
+	\
+	--with-audioresample-format=int \
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/gstreamer-$(GST_VERSION)
@@ -179,17 +173,14 @@ define Build/InstallDev
 	)
 	$(INSTALL_DIR) $(1)/usr/lib
 	( cd $(PKG_INSTALL_DIR); $(CP) \
-		./usr/lib/libgst*-$(GST_VERSION).so* \
+		./usr/lib/libgst*-$(GST_VERSION).{la,so*} \
 		$(1)/usr/lib/ \
 	)
-	if [ -d $(PKG_INSTALL_DIR)/usr/lib/gstreamer-$(GST_VERSION)/ ]; then \
-		$(INSTALL_DIR) $(1)/usr/lib/gstreamer-$(GST_VERSION); \
-		( cd $(PKG_INSTALL_DIR); $(FIND) \
-			./usr/lib/gstreamer-$(GST_VERSION)/ -name libgst*.so -print0 | \
-			xargs --null --no-run-if-empty $(CP) \
-			--target-directory=$(1)/usr/lib/gstreamer-$(GST_VERSION)/ \
-		) \
-	fi
+	$(INSTALL_DIR) $(1)/usr/lib/gstreamer-$(GST_VERSION)
+	( cd $(PKG_INSTALL_DIR); $(CP) \
+		./usr/lib/gstreamer-$(GST_VERSION)/libgst*.{la,so} \
+		$(1)/usr/lib/gstreamer-$(GST_VERSION)/ \
+	)
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	( cd $(PKG_INSTALL_DIR); $(CP) \
 		./usr/lib/pkgconfig/gstreamer*-$(GST_VERSION).pc \
@@ -287,38 +278,31 @@ define GstBuildPlugin
   $$(eval $$(call BuildPackage,gst1-mod-$(1)))
 endef
 
-$(eval $(call GstBuildPlugin,adder,adder,audio,,))
+define Package/gst-play-1.0/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/gst-play-1.0 $(1)/usr/sbin/
+endef
+
+$(eval $(call GstBuildPlugin,alsa,ALSA,audio tag,,+alsa-lib))
 $(eval $(call GstBuildPlugin,app,app,app,,))
 $(eval $(call GstBuildPlugin,audioconvert,audio format conversion,audio,,))
-$(eval $(call GstBuildPlugin,audiomixer,audio mixing,audio,,))
 $(eval $(call GstBuildPlugin,audiorate,audio rate adjusting,audio tag,,))
 $(eval $(call GstBuildPlugin,audioresample,audio resampling,audio tag,,))
 $(eval $(call GstBuildPlugin,audiotestsrc,audio test,audio tag controller,,))
-$(eval $(call GstBuildPlugin,compositor,video compositor,video,,))
-$(eval $(call GstBuildPlugin,encoding,encoding plugin,pbutils video,,))
+$(eval $(call GstBuildPlugin,playback,media decoder (v2),pbutils,,))
 $(eval $(call GstBuildPlugin,gio,GIO,,,))
-$(eval $(call GstBuildPlugin,overlaycomposition,overlay composition,video,,))
-$(eval $(call GstBuildPlugin,pbtypes,pbtypes,video,,))
-$(eval $(call GstBuildPlugin,playback,playback,pbutils,,))
-$(eval $(call GstBuildPlugin,subparse,subparse,video,,))
-$(eval $(call GstBuildPlugin,rawparse,parse raw media,audio video,,))
+$(eval $(call GstBuildPlugin,ogg,Ogg,riff tag pbutils video,,+libogg))
+$(eval $(call GstBuildPlugin,opus,OPUS plugin library,pbutils video,,+libopus))
 $(eval $(call GstBuildPlugin,tcp,TCP,net,,))
+$(eval $(call GstBuildPlugin,theora,Theora,tag video,,+libogg +libtheora))
 $(eval $(call GstBuildPlugin,typefindfunctions,'typefind' functions,audio pbutils tag video,,))
 $(eval $(call GstBuildPlugin,videoconvert,video format conversion,video,,))
 $(eval $(call GstBuildPlugin,videorate,Adjusts video frames,video,,))
 $(eval $(call GstBuildPlugin,videoscale,Resizes video,video,,))
 $(eval $(call GstBuildPlugin,videotestsrc,video test,video,,+liboil))
 $(eval $(call GstBuildPlugin,volume,volume,audio controller,,+liboil))
-
-$(eval $(call GstBuildPlugin,alsa,ALSA audio source/sink,audio tag,,+alsa-lib))
-$(eval $(call GstBuildPlugin,ivorbisdec,Integer Vorbis decoder plugin for devices without floating point,audio tag,,+libvorbisidec))
-#$(eval $(call GstBuildPlugin,cdparanoia,cdparanoia,,+libcdparanoia))
-#$(eval $(call GstBuildPlugin,libvisual,libvisual audio visualization,,+libvisual))
-$(eval $(call GstBuildPlugin,ogg,ogg parser muxer demuxer,riff tag pbutils video,,+libogg))
-$(eval $(call GstBuildPlugin,opus,OPUS audio codec,pbutils video,,+libopus))
-#$(eval $(call GstBuildPlugin,pango,Pango text rendering and overlay plugin,,+pango))
-$(eval $(call GstBuildPlugin,theora,Theora,tag video,,+libogg +libtheora))
 $(eval $(call GstBuildPlugin,vorbis,Vorbis,audio tag,ogg,+libvorbis))
 
 $(eval $(call BuildPackage,gstreamer1-plugins-base))
 $(eval $(call BuildPackage,gst1-plugins-base))
+$(eval $(call BuildPackage,gst-play-1.0))
