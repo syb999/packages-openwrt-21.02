@@ -1,0 +1,16 @@
+syntax on
+set hlsearch
+colorscheme murphy
+set nu
+set autoindent
+set nocompatible
+set backspace=indent,eol,start
+set filetype=html
+set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
+set termencoding=utf-8
+set encoding=utf-8
+imap { {}<ESC>i
+imap ( ()<ESC>i
+imap < <><ESC>i
+imap [ []<ESC>i
+

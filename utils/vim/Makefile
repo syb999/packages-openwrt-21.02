@@ -235,7 +235,8 @@ define Package/vim-fuller/install
 	$(INSTALL_DIR) $(1)/usr/share/vim
 	$(LN) vim $(1)/usr/bin/vimdiff
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/vim/vim$(VIMVER) $(1)/usr/share/vim
-	$(INSTALL_CONF) ./files/vimrc.full $(1)/usr/share/vim/vimrc
+	$(INSTALL_DIR) $(1)/root
+	$(INSTALL_CONF) ./files/vimrc.fuller $(1)/root/.vimrc
 endef
 
 
