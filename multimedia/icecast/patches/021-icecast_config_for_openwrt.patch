@@ -1,0 +1,15 @@
+--- a/conf/icecast.xml.in
++++ b/conf/icecast.xml.in
+@@ -65,9 +65,9 @@
+ 
+     <!-- You may have multiple <listen-socket> elements -->
+     <listen-socket>
+-        <port>8000</port>
+-        <!-- <bind-address>127.0.0.1</bind-address> -->
+-        <!-- <shoutcast-mount>/stream</shoutcast-mount> -->
++        <port>8001</port>
++        <bind-address>0.0.0.0</bind-address> -->
++        <shoutcast-mount>/stream</shoutcast-mount> -->
+     </listen-socket>
+     <!--
+     <listen-socket>
