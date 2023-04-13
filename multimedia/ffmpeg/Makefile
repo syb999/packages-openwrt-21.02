@@ -250,6 +250,10 @@ $(call Package/ffmpeg/Default)
  VARIANT:=full
 endef
 
+define Package/ffmpeg/config
+source "$(SOURCE)/ffcfg.in"
+endef
+
 define Package/ffmpeg-custom
 $(call Package/ffmpeg/Default)
  SECTION:=multimedia
@@ -347,8 +351,10 @@ $(call Package/libffmpeg/Default)
  DEPENDS+= +alsa-lib +libgnutls +PACKAGE_libopus:libopus \
     +SOFT_FLOAT:shine \
     +!SOFT_FLOAT:lame-lib \
-    +PACKAGE_libx264:libx264 \
-    +!PACKAGE_libx264:fdk-aac
+    +PACKAGE_$(PKG_NAME)_INCLUDE_libx264:libx264 \
+    +PACKAGE_$(PKG_NAME)_INCLUDE_libx265:libx265 \
+    +PACKAGE_$(PKG_NAME)_INCLUDE_libfreetype:libfreetype \
+    +PACKAGE_$(PKG_NAME)_INCLUDE_libfdk-aac:fdk-aac
  VARIANT:=full
  PROVIDES+=libffmpeg-mini libffmpeg-audio-dec
 endef
@@ -401,7 +407,7 @@ FFMPEG_CONFIGURE:= \
 	--disable-lzma \
 	--disable-vaapi \
 	--disable-vdpau \
-	--disable-outdevs
+	--enable-outdev=alsa
 
 ifeq ($(CONFIG_SOFT_FLOAT),y)
 FFMPEG_CONFIGURE+= \
@@ -494,6 +500,16 @@ ifeq ($(BUILD_VARIANT),full)
 		--enable-libx264
   else
 	FFMPEG_CONFIGURE+= $(if $(CONFIG_PACKAGE_fdk-aac),--enable-libfdk-aac)
+  endif
+
+  ifneq ($(CONFIG_PACKAGE_libx265),)
+	FFMPEG_CONFIGURE+= \
+		--enable-libx265
+  endif
+
+  ifneq ($(CONFIG_PACKAGE_libfreetype),)
+	FFMPEG_CONFIGURE+= \
+		--enable-libfreetype
   endif
 endif
 

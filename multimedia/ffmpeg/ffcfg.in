@@ -1,0 +1,17 @@
+config PACKAGE_ffmpeg_INCLUDE_libx264
+	bool "Include libx264"
+	default n
+
+config PACKAGE_ffmpeg_INCLUDE_libx265
+	bool "Include libx265"
+	default n
+
+config PACKAGE_ffmpeg_INCLUDE_libfreetype
+	bool "Include libfreetype"
+	default n
+
+config PACKAGE_ffmpeg_INCLUDE_libfdk-aac
+	bool "Include libfdk-aac"
+	default n
+
+
