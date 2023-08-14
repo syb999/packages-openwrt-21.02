@@ -8,16 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libffi
-PKG_VERSION:=3.3
+PKG_VERSION:=3.4.2
 PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://sourceware.org/pub/libffi/
-PKG_HASH:=72fba7922703ddfa7a028d513ac15a85c8d54c8d67f55fa5a4802885dc652056
+PKG_SOURCE_URL:=https://codeload.github.com/libffi/libffi/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=0acbca9fd9c0eeed7e5d9460ae2ea945d3f1f3d48e13a4c54da12c7e0d23c313
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 
+PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
@@ -46,12 +47,22 @@ A layer must exist above libffi that handles type conversions for values passed
 between the two languages.
 endef
 
+define Package/libffi-dev
+  SECTION:=devel
+  CATEGORY:=Development
+  SUBMENU:=Libraries
+  DEPENDS:=libffi
+  TITLE:=Development files for the libffi library
+endef
+
 HOST_CONFIGURE_ARGS += \
+	--disable-shared \
 	--disable-debug \
 	--disable-docs \
 	--disable-multi-os-directory \
 	--disable-raw-api \
-	--disable-structs
+	--disable-structs \
+	--with-pic
 
 CONFIGURE_ARGS += \
 	--disable-debug \
@@ -81,7 +92,19 @@ define Package/libffi/install
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/libffi.so.* \
 		$(1)/usr/lib/
+	ln -sf libffi.so.8 $(1)/usr/lib/libffi.so
+endef
+
+define Package/libffi-dev/install
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libffi.a $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libffi.pc \
+	  $(1)/usr/lib/pkgconfig/
 endef
 
 $(eval $(call HostBuild))
 $(eval $(call BuildPackage,libffi))
+$(eval $(call BuildPackage,libffi-dev))
