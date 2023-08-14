@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2020 Jeffery To
+# Copyright (C) 2018-2022 Jeffery To
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -241,15 +241,15 @@ GO_PKG_INSTALL_ARGS= \
 	-buildvcs=false \
 	-trimpath \
 	-ldflags "all=$(GO_PKG_DEFAULT_LDFLAGS)" \
-	$(if $(GO_PKG_DEFAULT_GCFLAGS),-gcflags "all=$(GO_PKG_DEFAULT_GCFLAGS)") \
-	$(if $(GO_PKG_DEFAULT_ASMFLAGS),-asmflags "all=$(GO_PKG_DEFAULT_ASMFLAGS)") \
-	$(if $(filter $(GO_PKG_ENABLE_PIE),1),-buildmode pie) \
+	$(if $(strip $(GO_PKG_DEFAULT_GCFLAGS)),-gcflags "all=$(GO_PKG_DEFAULT_GCFLAGS)") \
+	$(if $(strip $(GO_PKG_DEFAULT_ASMFLAGS)),-asmflags "all=$(GO_PKG_DEFAULT_ASMFLAGS)") \
+	$(if $(GO_PKG_ENABLE_PIE),-buildmode pie) \
 	$(if $(filter $(GO_ARCH),arm),-installsuffix "v$(GO_ARM)") \
 	$(if $(filter $(GO_ARCH),mips mipsle),-installsuffix "$(GO_MIPS)") \
 	$(if $(filter $(GO_ARCH),mips64 mips64le),-installsuffix "$(GO_MIPS64)") \
-	$(if $(GO_PKG_GCFLAGS),-gcflags "$(GO_PKG_GCFLAGS) $(GO_PKG_DEFAULT_GCFLAGS)") \
-	$(if $(GO_PKG_CUSTOM_LDFLAGS),-ldflags "$(GO_PKG_CUSTOM_LDFLAGS) $(GO_PKG_DEFAULT_LDFLAGS)") \
-	$(if $(GO_PKG_TAGS),-tags "$(GO_PKG_TAGS)")
+	$(if $(strip $(GO_PKG_GCFLAGS)),-gcflags "$(GO_PKG_GCFLAGS) $(GO_PKG_DEFAULT_GCFLAGS)") \
+	$(if $(strip $(GO_PKG_CUSTOM_LDFLAGS)),-ldflags "$(GO_PKG_CUSTOM_LDFLAGS) $(GO_PKG_DEFAULT_LDFLAGS)") \
+	$(if $(strip $(GO_PKG_TAGS)),-tags "$(GO_PKG_TAGS)")
 
 define GoPackage/Build/Configure
 	$(GO_GENERAL_BUILD_CONFIG_VARS) \
@@ -317,14 +317,3 @@ define GoSrcPackage
     Package/$(1)/install=$$(call GoPackage/Package/Install/Src,$$(1))
   endif
 endef
-
-
-# Deprecated variables - these will be removed after the next OpenWrt release
-GO_PKG_PATH=$(GO_PKG_BUILD_DEPENDS_PATH)
-GO_PKG_WORK_DIR=$(PKG_BUILD_DIR)/$(GO_PKG_WORK_DIR_NAME)
-GO_PKG_CACHE_DIR=$(GO_BUILD_CACHE_DIR)
-GO_PKG_DEFAULT_VARS=$(GO_PKG_VARS)
-GoPackage/Environment=$(GO_PKG_VARS)
-GoPackage/is_dir_not_empty=$$$$($(FIND) "$(1)" -maxdepth 0 -type d \! -empty 2>/dev/null)
-GoPackage/has_binaries=$(call GoPackage/is_dir_not_empty,$(GO_PKG_BUILD_BIN_DIR))
-# End of deprecated variables
