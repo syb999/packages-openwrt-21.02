@@ -60,6 +60,15 @@ define Package/libsqlite3
   ABI_VERSION:=0
 endef
 
+define Package/libsqlite3-dev
+  $(call Package/sqlite3/Default)
+  SECTION:=devel
+  CATEGORY:=Development
+  SUBMENU:=Libraries
+  DEPENDS:=libsqlite3
+  TITLE:=Development files for the libsqlite3 library
+endef
+
 define Package/libsqlite3/description
 $(call Package/sqlite3/Default/description)
  This package contains the SQLite (v3.x) shared library, used by other
@@ -135,10 +144,24 @@ define Package/libsqlite3/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsqlite3.so.$(ABI_VERSION)* $(1)/usr/lib
 endef
 
+define Package/libsqlite3-dev/install
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/sqlite3.h \
+	  $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/sqlite3ext.h \
+	  $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsqlite3.a $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/sqlite3.pc \
+	  $(1)/usr/lib/pkgconfig/
+endef
+
 define Package/sqlite3-cli/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sqlite3 $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,libsqlite3))
+$(eval $(call BuildPackage,libsqlite3-dev))
 $(eval $(call BuildPackage,sqlite3-cli))
