@@ -47,6 +47,15 @@ $(call Package/xz/Default)
   TITLE:=liblzma library from XZ Utils
 endef
 
+define Package/liblzma-dev
+$(call Package/xz/Default)
+  SECTION:=devel
+  CATEGORY:=Development
+  SUBMENU:=Libraries
+  DEPENDS:=liblzma
+  TITLE:=Development files for the liblzma library
+endef
+
 # $(1): package name & command in /usr/bin/
 # $(2): package dependencies
 # $(3): symbolic links to $(1) in /usr/bin/
@@ -111,9 +120,22 @@ define Package/liblzma/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblzma.so.* $(1)/usr/lib/
 endef
 
+define Package/liblzma-dev/install
+	$(INSTALL_DIR) $(1)/usr/include/lzma
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/lzma.h \
+	  $(1)/usr/include/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/lzma/*.h \
+	  $(1)/usr/include/lzma
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblzma.a $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/liblzma.pc \
+	  $(1)/usr/lib/pkgconfig/
+endef
 
 $(eval $(call BuildPackage,xz-utils))
 $(eval $(call BuildPackage,liblzma))
+$(eval $(call BuildPackage,liblzma-dev))
 $(eval $(call BuildSubPackage,lzmadec, +liblzma,))
 $(eval $(call BuildSubPackage,lzmainfo, +liblzma,))
 $(eval $(call BuildSubPackage,xz, +liblzma, lzcat lzma unlzma unxz xzcat))
