@@ -31,6 +31,14 @@ define Package/libjpeg-turbo
   PROVIDES:=libjpeg
 endef
 
+define Package/libjpeg-dev
+  SECTION:=devel
+  CATEGORY:=Development
+  SUBMENU:=Libraries
+  DEPENDS:=libjpeg-turbo
+  TITLE:=Development files for the libjpeg-turbo library
+endef
+
 define Package/libjpeg-turbo-utils
   $(call Package/libjpeg-turbo/Default)
   SECTION:=utils
@@ -81,6 +89,14 @@ define Package/libjpeg-turbo/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libjpeg.so* $(1)/usr/lib
 endef
 
+define Package/libjpeg-dev/install
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/*.pc \
+	  $(1)/usr/lib/pkgconfig
+endef
+
 define Package/libjpeg-turbo-utils/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rdjpgcom $(1)/usr/bin
@@ -91,4 +107,5 @@ define Package/libjpeg-turbo-utils/install
 endef
 
 $(eval $(call BuildPackage,libjpeg-turbo))
+$(eval $(call BuildPackage,libjpeg-dev))
 $(eval $(call BuildPackage,libjpeg-turbo-utils))
