@@ -39,7 +39,7 @@ define Package/gstreamer1-good/Default
   SECTION:=multimedia
   TITLE:=GStreamer
   URL:=https://gstreamer.freedesktop.org/
-  DEPENDS:= +libgstreamer1 +libgst1pbutils $(ICONV_DEPENDS)
+  DEPENDS:= +libgstreamer1 +libgst1pbutils +libstdcpp $(ICONV_DEPENDS)
 endef
 
 define Package/gstreamer1-good/description/Default
