@@ -42,9 +42,29 @@ define Package/portaudio/description
  different platforms. Many applications use PortAudio for Audio I/O.
 endef
 
+define Package/libportaudio-dev
+  SECTION:=devel
+  CATEGORY:=Development
+  SUBMENU:=Libraries
+  DEPENDS:=portaudio
+  TITLE:=Development files for the portaudio library
+endef
+
 define Package/portaudio/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libportaudio.so $(1)/usr/lib/
 endef
 
+define Package/libportaudio-dev/install
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libportaudio_static.a \
+	  $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/portaudio-2.0.pc \
+	  $(1)/usr/lib/pkgconfig
+endef
+
 $(eval $(call BuildPackage,portaudio))
+$(eval $(call BuildPackage,libportaudio-dev))
