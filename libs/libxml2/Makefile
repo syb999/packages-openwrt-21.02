@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libxml2
-PKG_VERSION:=2.9.14
+PKG_VERSION:=2.9.9
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@GNOME/libxml2/$(basename $(PKG_VERSION))
-PKG_HASH:=60d74a257d1ccec0475e749cba2f21559e48139efba6ff28224357c7c798dfee
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=http://xmlsoft.org/sources/
+PKG_HASH:=94fb70890143e3c6549f265cee93ec064c80a84c42ad0f23e85ee1fd6540a871
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -27,14 +27,13 @@ PKG_BUILD_PARALLEL:=0
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/nls.mk
 
 define Package/libxml2
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Gnome XML library
   URL:=http://xmlsoft.org/
-  DEPENDS:=+libpthread +zlib $(ICONV_DEPENDS)
+  DEPENDS:=+libpthread +zlib
 endef
 
 define Package/libxml2/description
@@ -81,6 +80,7 @@ CONFIGURE_ARGS += \
 	--with-html \
 	--without-ftp \
 	--without-http \
+	--without-iconv \
 	--without-iso8859x \
 	--without-legacy \
 	--with-output \
@@ -159,15 +159,15 @@ define Build/InstallDev
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/aclocal/* $(2)/share/aclocal
 endef
 
+define Package/libxml2/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxml2.so* $(1)/usr/lib/
+endef
+
 define Host/Install
 	$(call Host/Install/Default)
 	mv $(1)/bin/xml2-config $(1)/bin/$(GNU_HOST_NAME)-xml2-config
 	$(LN) $(GNU_HOST_NAME)-xml2-config $(1)/bin/xml2-config
-endef
-
-define Package/libxml2/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxml2.so.* $(1)/usr/lib/
 endef
 
 define Package/libxml2-dev/install
