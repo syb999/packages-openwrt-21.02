@@ -1,0 +1,30 @@
+--- a/conf/icecast.xml.in
++++ b/conf/icecast.xml.in
+@@ -13,8 +13,8 @@
+     -->
+ 
+     <limits>
+-        <clients>100</clients>
+-        <sources>2</sources>
++        <clients>200</clients>
++        <sources>200</sources>
+         <queue-size>524288</queue-size>
+         <client-timeout>30</client-timeout>
+         <header-timeout>15</header-timeout>
+@@ -68,6 +68,16 @@
+         <port>8001</port>
+         <bind-address>0.0.0.0</bind-address> -->
+         <shoutcast-mount>/stream</shoutcast-mount> -->
++        <shoutcast-mount>/stream1</shoutcast-mount> -->
++        <shoutcast-mount>/stream2</shoutcast-mount> -->
++        <shoutcast-mount>/stream3</shoutcast-mount> -->
++        <shoutcast-mount>/stream4</shoutcast-mount> -->
++        <shoutcast-mount>/stream5</shoutcast-mount> -->
++        <shoutcast-mount>/stream6</shoutcast-mount> -->
++        <shoutcast-mount>/stream7</shoutcast-mount> -->
++        <shoutcast-mount>/stream8</shoutcast-mount> -->
++        <shoutcast-mount>/stream9</shoutcast-mount> -->
++        <shoutcast-mount>/stream10</shoutcast-mount> -->
+     </listen-socket>
+     <!--
+     <listen-socket>
