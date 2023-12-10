@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-START=90
+START=99
 
 USE_PROCD=1
 
@@ -18,7 +18,7 @@ start_instance() {
 	local args=""
 
 	if ! section_enabled "$cfg"; then
-		echo "disabled in /etc/config/zerotier"
+		echo "disabled in config"
 		return 1
 	fi
 
@@ -35,10 +35,9 @@ start_instance() {
 
 	# Create link or copy files from CONFIG_PATH to config_path
 	if [ -n "$config_path" -a "$config_path" != "$path" ]; then
-		# Create the config path to init and persist
 		if [ ! -d "$config_path" ]; then
-			echo "ZeroTier config_path does not exist: $config_path, create..."
-			mkdir -p $config_path
+			echo "ZeroTier config_path does not exist: $config_path" 1>&2
+			return
 		fi
 
 		# ensure that the target exists
@@ -52,6 +51,7 @@ start_instance() {
 	fi
 
 	mkdir -p $path/networks.d
+	mkdir -p $path/peers.d
 
 	# link latest default config path to latest config path
 	rm -f $CONFIG_PATH
@@ -61,7 +61,7 @@ start_instance() {
 		args="$args -p${port}"
 	fi
 
-	if [ -z "$secret" -a ! -f $path/identity.secret ]; then
+	if [ -z "$secret" ]; then
 		echo "Generate secret - please wait..."
 		local sf="/tmp/zt.$cfg.secret"
 
@@ -102,13 +102,11 @@ start_instance() {
 start_service() {
 	config_load 'zerotier'
 	config_foreach start_instance 'zerotier'
+	touch /tmp/zero.log && /etc/zerotier.start > /tmp/zero.log 2>&1 &
 }
 
 stop_instance() {
 	local cfg="$1"
-
-	# Remove existing networks
-	rm -f ${CONFIG_PATH}_${cfg}/networks.d/*.conf
 
 	# Remove existing link or folder
 	rm -rf ${CONFIG_PATH}_${cfg}
