@@ -9,18 +9,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg
-PKG_VERSION:=4.3.4
+PKG_VERSION:=5.1.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://ffmpeg.org/releases/
-PKG_HASH:=c117d9b778be1be2d3889757567113c5e940bad6913b16f9e86c31509f9d742d
+PKG_HASH:=1b113593ff907293be7aed95acdda5e785dd73616d7d4ec90a0f6adbc5a0312e
 PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>, \
 		Ian Leonard <antonlacon@gmail.com>
 
 PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later LGPL-3.0-or-later
 PKG_LICENSE_FILES:=COPYING.GPLv2 COPYING.GPLv3 COPYING.LGPLv2.1 COPYING.LGPLv3
 PKG_CPE_ID:=cpe:/a:ffmpeg:ffmpeg
+
+PKG_BUILD_PARALLEL:=1
 
 FFMPEG_CUSTOM_ENCODERS:= \
 	ac3 \
@@ -67,6 +69,7 @@ FFMPEG_CUSTOM_DECODERS:= \
 
 FFMPEG_CUSTOM_MUXERS:= \
 	ac3 \
+	avi \
 	ffm \
 	h264 \
 	hevc \
@@ -250,10 +253,6 @@ $(call Package/ffmpeg/Default)
  VARIANT:=full
 endef
 
-define Package/ffmpeg/config
-source "$(SOURCE)/ffcfg.in"
-endef
-
 define Package/ffmpeg-custom
 $(call Package/ffmpeg/Default)
  SECTION:=multimedia
@@ -348,13 +347,11 @@ endef
 define Package/libffmpeg-full
 $(call Package/libffmpeg/Default)
  TITLE+= (full)
- DEPENDS+= +alsa-lib +libgnutls +PACKAGE_libopus:libopus \
+ DEPENDS+= +alsa-lib +libgnutls +libopus \
     +SOFT_FLOAT:shine \
     +!SOFT_FLOAT:lame-lib \
-    +PACKAGE_$(PKG_NAME)_INCLUDE_libx264:libx264 \
-    +PACKAGE_$(PKG_NAME)_INCLUDE_libx265:libx265 \
-    +PACKAGE_$(PKG_NAME)_INCLUDE_libfreetype:libfreetype \
-    +PACKAGE_$(PKG_NAME)_INCLUDE_libfdk-aac:fdk-aac
+    +PACKAGE_libx264:libx264 \
+    +!PACKAGE_libx264:fdk-aac
  VARIANT:=full
  PROVIDES+=libffmpeg-mini libffmpeg-audio-dec
 endef
@@ -502,11 +499,6 @@ ifeq ($(BUILD_VARIANT),full)
 	FFMPEG_CONFIGURE+= $(if $(CONFIG_PACKAGE_fdk-aac),--enable-libfdk-aac)
   endif
 
-  ifneq ($(CONFIG_PACKAGE_libx265),)
-	FFMPEG_CONFIGURE+= \
-		--enable-libx265
-  endif
-
   ifneq ($(CONFIG_PACKAGE_libfreetype),)
 	FFMPEG_CONFIGURE+= \
 		--enable-libfreetype
@@ -649,7 +641,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		all install
 endef
