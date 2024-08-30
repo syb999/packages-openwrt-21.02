@@ -50,8 +50,6 @@ define Package/libxml2-dev
 endef
 
 define Package/libxml2-dev/description
-  A library for manipulating XML and HTML resources.
-
   This package contains the headers and xml2-config binary.
 endef
 
@@ -170,26 +168,22 @@ define Host/Install
 	$(LN) $(GNU_HOST_NAME)-xml2-config $(1)/bin/xml2-config
 endef
 
-define Package/libxml2-dev/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/xml2-config $(1)/usr/bin/
-	$(SED) "s,$(STAGING_DIR),,g" $(1)/usr/bin/xml2-config
-
-	$(INSTALL_DIR) $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
-
-	$(INSTALL_DIR) $(1)/usr/lib/{cmake,pkgconfig}
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/{cmake,pkgconfig} $(1)/usr/lib/
-	$(SED) "s,$(STAGING_DIR),,g" $(1)/usr/lib/pkgconfig/*.pc
-
-	$(INSTALL_DIR) $(1)/usr/share/aclocal
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/aclocal/* $(1)/usr/share/aclocal
-endef
 
 define Package/libxml2-utils/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/xmllint $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/xmlcatalog $(1)/usr/bin/
+endef
+
+define Package/libxml2-dev/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/xml2-config $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/include/libxml2/libxml
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/libxml2/libxml/* $(1)/usr/include/libxml2/libxml
+	$(INSTALL_DIR) $(1)/usr/lib/{cmake,pkgconfig}
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/{cmake,pkgconfig}/* $(1)/usr/lib/{cmake,pkgconfig}
+	$(INSTALL_DIR) $(1)/usr/share/aclocal
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/aclocal/* $(1)/usr/share/aclocal
 endef
 
 $(eval $(call HostBuild))
