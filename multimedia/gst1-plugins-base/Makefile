@@ -115,6 +115,13 @@ define Package/gstreamer1-plugins-base/config
 
 endef
 
+define Package/gst-play-1.0
+  CATEGORY:=Multimedia
+  SECTION:=multimedia
+  TITLE+= gst-play
+  DEPENDS:=+ALL:gst1-plugins-base +gstreamer1-libs +$(GST_DEPENDS) +libgstreamer1 $(ICONV_DEPENDS)
+endef
+
 GST_COND_SELECT = -D$(1)=$(if $(CONFIG_PACKAGE_gst1-mod-$(1)),en,dis)abled
 
 GST_VERSION:=1.0
@@ -162,7 +169,6 @@ MESON_ARGS += \
 	\
 	-Dexamples=disabled \
 	-Dtests=disabled \
-	-Dtools=disabled \
 	-Dintrospection=disabled \
 	-Dnls=enabled \
 	-Dorc=disabled \
@@ -287,6 +293,11 @@ define GstBuildPlugin
   $$(eval $$(call BuildPackage,gst1-mod-$(1)))
 endef
 
+define Package/gst-play-1.0/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/gst-play-1.0 $(1)/usr/sbin/
+endef
+
 $(eval $(call GstBuildPlugin,adder,adder,audio,,))
 $(eval $(call GstBuildPlugin,app,app,app,,))
 $(eval $(call GstBuildPlugin,audioconvert,audio format conversion,audio,,))
@@ -322,3 +333,4 @@ $(eval $(call GstBuildPlugin,vorbis,Vorbis,audio tag,ogg,+libvorbis))
 
 $(eval $(call BuildPackage,gstreamer1-plugins-base))
 $(eval $(call BuildPackage,gst1-plugins-base))
+$(eval $(call BuildPackage,gst-play-1.0))
