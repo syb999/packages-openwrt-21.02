@@ -8,20 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gst1-plugins-bad
-PKG_VERSION:=1.18.5
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=1.24.8
+PKG_RELEASE:=2
 
 PKG_SOURCE:=gst-plugins-bad-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=http://gstreamer.freedesktop.org/src/gst-plugins-bad/
-PKG_HASH:=a164923b94f0d08578a6fcaeaac6e0c05da788a46903a1086870e9ca45ad678e
+PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gst-plugins-bad/
+PKG_HASH:=35ad70de3d7cbca3089f33bb77c45750daad2ae93d79827fdbb469fa8aba84eb
 PKG_BUILD_DIR:=$(BUILD_DIR)/gst-plugins-bad-$(PKG_VERSION)
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org> \
 		Ted Hess <thess@kitschensync.net>
 PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING.LIB COPYING
-
-PKG_INSTALL:=1
+PKG_CPE_ID:=cpe:/a:freedesktop:gst-plugins-bad
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
@@ -194,14 +193,13 @@ MESON_ARGS += \
 	-Dfluidsynth=disabled \
 	-Dgl=disabled \
 	-Dgme=disabled \
+	-Dgpl=enabled \
 	-Dgsm=disabled \
 	-Dipcpipeline=disabled \
 	-Diqa=disabled \
-	-Dkate=disabled \
 	-Dkms=disabled \
 	-Dladspa=disabled \
 	-Dlibde265=disabled \
-	-Dlibmms=disabled \
 	-Dlv2=disabled \
 	-Dmediafoundation=disabled \
 	-Dmicrodns=disabled \
@@ -212,7 +210,6 @@ MESON_ARGS += \
 	-Dmusepack=disabled \
 	-Dneon=disabled \
 	-Dnvcodec=disabled \
-	-Dofa=disabled \
 	-Dopenal=disabled \
 	-Dopenexr=disabled \
 	-Dopenh264=disabled \
@@ -231,7 +228,7 @@ MESON_ARGS += \
 	$(call GST_COND_SELECT,sndfile) \
 	-Dsoundtouch=disabled \
 	-Dspandsp=disabled \
-	-Dsrt=disabled \
+	$(call GST_COND_SELECT,srt) \
 	-Dsrtp=disabled \
 	-Dteletext=disabled \
 	-Dtinyalsa=disabled \
@@ -242,7 +239,6 @@ MESON_ARGS += \
 	-Dvulkan=disabled \
 	-Dwasapi=disabled \
 	-Dwasapi2=disabled \
-	$(call GST_COND_SELECT,webp) \
 	-Dwebrtc=disabled \
 	-Dwebrtcdsp=disabled \
 	-Dwildmidi=disabled \
@@ -377,7 +373,7 @@ $(eval $(call GstBuildPlugin,interlace,interlace support,,,))
 $(eval $(call GstBuildPlugin,ivfparse,ivfparse support,,,))
 $(eval $(call GstBuildPlugin,ivtc,ivtc support,,,))
 $(eval $(call GstBuildPlugin,jp2kdecimator,jp2kdecimator support,,,))
-$(eval $(call GstBuildPlugin,jpegformat,jpegformat support,tag,,))
+$(eval $(call GstBuildPlugin,jpegformat,jpegformat support,tag codecparsers,,))
 $(eval $(call GstBuildPlugin,legacyrawparse,rawparse support,audio video,,))
 $(eval $(call GstBuildPlugin,midi,midi support,audio,,))
 $(eval $(call GstBuildPlugin,mpegpsdemux,mpegpsdemux support,pbutils,,))
@@ -418,8 +414,9 @@ $(eval $(call GstBuildPlugin,opusparse,OPUS streams library,pbutils,,+libopus))
 $(eval $(call GstBuildPlugin,sbc,sbc support,audio,,+sbc))
 $(eval $(call GstBuildPlugin,shm,POSIX shared memory source and sink,,,+librt))
 $(eval $(call GstBuildPlugin,sndfile,sndfile support,audio,,+libsndfile))
+$(eval $(call GstBuildPlugin,srt,srt support,,,+srt))
 #$(eval $(call GstBuildPlugin,srtp,srtp support,rtp,,+libsrtp))
-$(eval $(call GstBuildPlugin,webp,webp support,,,+libwebp))
+#$(eval $(call GstBuildPlugin,webp,webp support,,,+libwebp))
 #$(eval $(call GstBuildPlugin,yadif,yadif support,,,))
 
 $(eval $(call BuildPackage,gstreamer1-plugins-bad))

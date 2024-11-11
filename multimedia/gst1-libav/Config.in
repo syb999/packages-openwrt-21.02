@@ -226,14 +226,12 @@ comment "Parsers ---"
 
 config GST1_LIBAV_PARSER_aac
 	bool "AAC (Advanced Audio Coding)"
-	depends on GST1_LIBAV_PATENTED
 
 config GST1_LIBAV_PARSER_ac3
 	bool "AC3"
 
 config GST1_LIBAV_PARSER_h264
 	bool "H.264"
-	depends on GST1_LIBAV_PATENTED
 	select GST1_LIBAV_DECODER_h264
 
 config GST1_LIBAV_PARSER_mpegaudio
