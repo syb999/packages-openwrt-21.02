@@ -11,7 +11,7 @@ define Package/pppwn-cpp
   URL:=https://github.com/xfangfang/PPPwn_cpp
   SECTION:=multimedia
   CATEGORY:=Multimedia
-  DEPENDS:=@(TARGET_rockchip||TARGET_kirkwood||TARGET_mvebu||TARGET_armvirt||TARGET_ar71xx||TARGET_ath79||TARGET_ramips||TARGET_x86_64)
+  DEPENDS:=@(TARGET_rockchip||TARGET_bcm27xx||TARGET_kirkwood||TARGET_mvebu||TARGET_armvirt||TARGET_ar71xx||TARGET_ath79||TARGET_ramips||TARGET_x86_64)
 endef
 
 define Package/pppwn-cpp/description
