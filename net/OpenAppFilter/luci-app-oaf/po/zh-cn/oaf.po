@@ -220,8 +220,8 @@ msgstr "特征码格式"
 msgid "Settings saved successfully"
 msgstr "设置成功"
 
-msgid "Invalid LAN interface name. Please ensure it is no more than 8 characters long and contains only letters, numbers, and -."
-msgstr "LAN接口名称无效。请确保其长度不超过8，并且只包含字母、数字和-。"
+msgid "Invalid LAN interface name. Please ensure it is no more than 8 characters long and contains only letters, numbers, dot, and -."
+msgstr "LAN接口名称无效。请确保其长度不超过8，并且只包含字母、数字.和-。"
 
 msgid "Disable Software/Hardware Acceleration"
 msgstr "关闭软/硬件加速"
