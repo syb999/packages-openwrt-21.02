@@ -1,0 +1,53 @@
+--- a/setup.py
++++ b/setup.py
+@@ -23,9 +23,24 @@
+     setup,
+ )
+ from setuptools.command.build_ext import build_ext as _build_ext
+-import versioneer
+ 
+-cmdclass = versioneer.get_cmdclass()
++# versioneer is a build requirement of the release process only (it derives the
++# version from git), while the sdist of a release carries a frozen
++# pandas/_version.py. When such an sdist is built with an older toolchain
++# (setuptools < 61 does not read the [project] table of pyproject.toml) neither
++# versioneer nor the PEP 621 metadata is available, so name and version are then
++# taken from the environment, the way the OpenWrt build system does with
++# PY_PKG_VERSION.
++try:
++    import versioneer
++except ImportError:
++    versioneer = None
++    # normally the versioneer command, which encodes the version info
++    from setuptools.command.sdist import sdist as _sdist
++
++    cmdclass = {"sdist": _sdist}
++else:
++    cmdclass = versioneer.get_cmdclass()
+ 
+ 
+ def is_platform_windows():
+@@ -663,8 +678,22 @@
+ if __name__ == "__main__":
+     # Freeze to support parallel compilation when using spawn instead of fork
+     multiprocessing.freeze_support()
++    if versioneer is not None:
++        metadata = {"version": versioneer.get_version()}
++    else:
++        # name, version, packages and package data of the PEP 621 project in
++        # pyproject.toml, which setuptools < 61 does not read
++        from setuptools import find_packages
++
++        metadata = {
++            "name": "pandas",
++            "version": os.environ.get("PY_PKG_VERSION", "0+unknown"),
++            "packages": find_packages(include=["pandas", "pandas.*"]),
++            "include_package_data": True,
++            "exclude_package_data": {"*": ["*.c", "*.h"]},
++        }
+     setup(
+-        version=versioneer.get_version(),
+         ext_modules=maybe_cythonize(extensions, compiler_directives=directives),
+         cmdclass=cmdclass,
++        **metadata,
+     )

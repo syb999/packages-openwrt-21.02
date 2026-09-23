@@ -1,0 +1,14 @@
+--- a/setup.py
++++ b/setup.py
+@@ -320,9 +320,12 @@
+     sys.argv.remove("--with-debugging-symbols")
+ 
+ 
+-if sys.byteorder == "big":
++# setup.py runs on the build host, so use the byte order of the target when
++# cross-compiling instead of the byte order of the host.
++target_byteorder = os.environ.get("PANDAS_TARGET_BYTEORDER", sys.byteorder)
++if target_byteorder == "big":
+     endian_macro = [("__BIG_ENDIAN__", "1")]
+ else:
+     endian_macro = [("__LITTLE_ENDIAN__", "1")]
