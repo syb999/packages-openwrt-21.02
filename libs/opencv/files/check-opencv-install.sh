@@ -9,7 +9,7 @@
 # as "ModuleNotFoundError: No module named 'cv2'" on the target. The second trap
 # is building the module against the host python (x86-64) instead of the target.
 #
-# Usage: check-opencv-install.sh <target-readelf> <site-packages> <lib dir>
+# Usage: check-opencv-install.sh <target-readelf> <site-packages> <lib dir> [required lib substring]
 #
 # Call it after "ninja install", i.e. on $(PKG_INSTALL_DIR); after the strip
 # step of the ipk build the .so cannot be read with readelf anymore.
@@ -17,6 +17,7 @@
 READELF="$1"
 SITE="$2"
 LIBDIR="$3"
+REQUIRED_LIB="$4"
 
 if [ -z "$READELF" ] || [ ! -d "$SITE" ]; then
 	echo "ERROR: usage: $0 <target-readelf> <site-packages> <lib dir>"
@@ -64,10 +65,27 @@ for so in $(find "$SITE" -name 'cv2*.so'); do
 	fi
 done
 
-# 3) the opencv libraries themselves
-if [ -n "$LIBDIR" ] && [ -z "$(find "$LIBDIR" -maxdepth 1 -name 'libopencv_core.so*' 2>/dev/null)" ]; then
-	echo "ERROR: libopencv_core.so* is missing in $LIBDIR"
-	failed=1
+# 3) the opencv libraries themselves. The optional backend (e.g. libavcodec for
+#    the ffmpeg videoio backend) is linked by one of these libraries, not by the
+#    python module, which only links libopencv_*.
+if [ -n "$LIBDIR" ]; then
+	if [ -z "$(find "$LIBDIR" -maxdepth 1 -name 'libopencv_core.so*' 2>/dev/null)" ]; then
+		echo "ERROR: libopencv_core.so* is missing in $LIBDIR"
+		failed=1
+	fi
+	if [ -n "$REQUIRED_LIB" ]; then
+		found=0
+		for lib in $(find "$LIBDIR" -maxdepth 1 -name 'libopencv_*.so*' 2>/dev/null); do
+			if "$READELF" -d "$lib" 2>/dev/null | grep -q "$REQUIRED_LIB"; then
+				found=1
+				break
+			fi
+		done
+		if [ "$found" = 0 ]; then
+			echo "ERROR: no libopencv_* library links against $REQUIRED_LIB (backend missing?)"
+			failed=1
+		fi
+	fi
 fi
 
 if [ "$failed" != 0 ]; then

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=opencv
 PKG_VERSION:=4.8.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 # Source: the sdist of opencv-python-headless, which vendors the complete OpenCV
 # source tree (opencv/). Using that sdist keeps this package on exactly the
@@ -35,9 +35,10 @@ PKG_BUILD_PARALLEL:=1
 PKG_USE_NINJA:=1
 PKG_USE_MIPS16:=0
 
-# numpy headers for the python bindings, and numpy itself has to be built for
-# the target as well (cv2 imports it at runtime).
-PKG_BUILD_DEPENDS:=numpy
+# numpy headers for the python bindings, numpy itself has to be built for the
+# target as well (cv2 imports it at runtime), and ffmpeg provides the videoio
+# backends for video files and network streams.
+PKG_BUILD_DEPENDS:=numpy ffmpeg
 HOST_PYTHON3_PACKAGE_BUILD_DEPENDS:=numpy
 
 # Only for PYTHON3_VERSION / PYTHON3_INC_DIR / HOST_PYTHON3_BIN and the host pip
@@ -60,7 +61,7 @@ define Package/libopencv
   CATEGORY:=Libraries
   TITLE:=OpenCV - computer vision and machine learning library
   URL:=https://opencv.org/
-  DEPENDS:=+libstdcpp +libpthread +librt +libatomic +zlib +libjpeg-turbo +libpng +libtiff +libwebp
+  DEPENDS:=+libstdcpp +libpthread +librt +libatomic +zlib +libjpeg-turbo +libpng +libtiff +libwebp +libffmpeg-full
 endef
 
 define Package/libopencv/description
@@ -82,14 +83,18 @@ define Package/python3-opencv/description
  the equivalent of the opencv-python-headless package on PyPI, built from the
  same source (4.8.1) instead of a prebuilt manylinux wheel.
 
- Modules: core, imgproc, imgcodecs, videoio (V4L2), calib3d, features2d, flann,
- ml, objdetect, photo, video, dnn. No highgui/GTK/Qt, no ffmpeg, no IPP and no
- quirc: those either need a GUI stack or download prebuilt blobs during the
- build, which cannot work here.
+ Modules: core, imgproc, imgcodecs, videoio (V4L2 and ffmpeg), calib3d, features2d,
+ flann, ml, objdetect, photo, video, dnn. No highgui/GTK/Qt, no IPP and no quirc:
+ those either need a GUI stack or download prebuilt blobs during the build, which
+ cannot work here.
+
+ Video I/O uses the ffmpeg libraries of the feed (libffmpeg-full), so in addition
+ to USB/V4L2 cameras this can open video files and network streams.
 endef
 
 # Everything that would download prebuilt blobs during the build (ippicv, ade,
-# quirc, ffmpeg binaries) or needs a GUI stack stays off.
+# quirc) or needs a GUI stack stays off. ffmpeg comes from the feed instead of
+# the prebuilt binaries the OpenCV build would download.
 CMAKE_OPTIONS += \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
@@ -100,7 +105,7 @@ CMAKE_OPTIONS += \
 	-DENABLE_PRECOMPILED_HEADERS=OFF \
 	-DWITH_IPP=OFF -DWITH_ITT=OFF -DWITH_OPENCL=OFF -DWITH_OPENCLAMDFFT=OFF \
 	-DWITH_OPENCLAMDBLAS=OFF -DWITH_GTK=OFF -DWITH_QT=OFF -DWITH_WIN32UI=OFF \
-	-DWITH_1394=OFF -DWITH_GSTREAMER=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=ON -DWITH_LIBV4L=OFF \
+	-DWITH_1394=OFF -DWITH_GSTREAMER=OFF -DWITH_FFMPEG=ON -DWITH_V4L=ON -DWITH_LIBV4L=OFF \
 	-DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_VTK=OFF -DWITH_EIGEN=OFF -DWITH_LAPACK=OFF \
 	-DWITH_JASPER=OFF -DWITH_OPENEXR=OFF -DWITH_QUIRC=OFF -DWITH_PROTOBUF=OFF \
 	-DWITH_PNG=ON -DWITH_JPEG=ON -DWITH_TIFF=ON -DWITH_WEBP=ON \
@@ -123,7 +128,7 @@ PYTHON3_PKG_DIR_ABS:=$(PKG_INSTALL_DIR)$(PYTHON3_PKG_DIR)
 # (cmake silently builds without them when it cannot find python or numpy).
 define Build/Install
 	$(call Build/Install/Default)
-	$(SHELL) ./files/check-opencv-install.sh "$(TARGET_CROSS)readelf" "$(PYTHON3_PKG_DIR_ABS)" "$(PKG_INSTALL_DIR)/usr/lib"
+	$(SHELL) ./files/check-opencv-install.sh "$(TARGET_CROSS)readelf" "$(PYTHON3_PKG_DIR_ABS)" "$(PKG_INSTALL_DIR)/usr/lib" "libavcodec"
 endef
 
 define Package/libopencv/install
