@@ -1,0 +1,14 @@
+--- a/rapidocr_onnxruntime/ch_ppocr_rec/text_recognize.py
++++ b/rapidocr_onnxruntime/ch_ppocr_rec/text_recognize.py
+@@ -69,7 +69,10 @@
+             for ino in range(beg_img_no, end_img_no):
+                 h, w = img_list[indices[ino]].shape[0:2]
+                 wh_ratio = w * 1.0 / h
+-                max_wh_ratio = max(max_wh_ratio, wh_ratio)
++                # the recognizer runs with a fixed input width here (see the package
++                # Makefile), so a crop that is wider than the model input is
++                # compressed instead of widening the whole batch
++                max_wh_ratio = min(max(max_wh_ratio, wh_ratio), imgW / imgH)
+                 wh_ratio_list.append(wh_ratio)
+ 
+             norm_img_batch = []

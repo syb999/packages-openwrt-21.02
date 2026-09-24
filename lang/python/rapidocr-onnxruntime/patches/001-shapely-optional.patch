@@ -1,0 +1,16 @@
+--- a/rapidocr_onnxruntime/ch_ppocr_det/utils.py
++++ b/rapidocr_onnxruntime/ch_ppocr_det/utils.py
+@@ -6,7 +6,12 @@
+ import cv2
+ import numpy as np
+ import pyclipper
+-from shapely.geometry import Polygon
++try:
++    from shapely.geometry import Polygon
++except ImportError:
++    # shapely needs the GEOS library, which is not available on every target
++    # (OpenWrt); the detector only uses Polygon.area and Polygon.length
++    from .polygon_stub import Polygon
+ 
+ 
+ class DetPreProcess:
