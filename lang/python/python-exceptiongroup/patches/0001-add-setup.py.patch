@@ -1,0 +1,15 @@
+--- /dev/null
++++ b/setup.py
+@@ -0,0 +1,12 @@
++from setuptools import setup
++
++setup(
++    name="exceptiongroup",
++    version="1.2.2",
++    description="Backport of PEP 654 (exception groups)",
++    package_dir={"": "src"},
++    packages=["exceptiongroup"],
++    package_data={"exceptiongroup": ["py.typed"]},
++    python_requires=">=3.7",
++    zip_safe=False,
++)
