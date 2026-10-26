@@ -1,0 +1,37 @@
+From: OpenWrt local tree
+Subject: [PATCH] setup.py: take the numpy include dir from PANDAS_NUMPY_INCLUDE
+
+pandas' setup.py calls numpy.get_include() to build its C extensions. In a
+cross build the ``numpy`` importable by the host Python is the one pip installed
+for the *host* (x86_64 here), so the headers come from the host numpy and
+NPY_INTP is 8 bytes wide.  When the target is 32-bit (arm_cortex-a5, NPY_INTP =
+4 bytes) every Cython extension ends up compiled for 8-byte intp while the
+runtime numpy uses 4-byte intp, and any take()/take_nd() based operation dies
+with:
+
+    ValueError: Buffer dtype mismatch, expected 'intp_t' but got 'long long'
+
+(aarch64 targets do not show it because both sides are 64-bit).
+
+Let the Makefile pass the include directory of the *target* numpy; when the
+variable is absent nothing changes.
+--- a/setup.py
++++ b/setup.py
+@@ -16,6 +16,17 @@
+ from sysconfig import get_config_vars
+ 
+ import numpy
++
++# OpenWrt cross build: the numpy imported here is the host one, so
++# numpy.get_include() points at host headers (x86_64, NPY_INTP = 8 bytes).
++# On a 32-bit target that makes every extension assume 8-byte intp while the
++# runtime numpy uses 4 bytes -> "Buffer dtype mismatch, expected 'intp_t' but
++# got 'long long'".  PANDAS_NUMPY_INCLUDE (set by the package Makefile) points
++# at the target numpy's include directory instead.
++import os as _os
++if _os.environ.get("PANDAS_NUMPY_INCLUDE"):
++    numpy.get_include = lambda: _os.environ["PANDAS_NUMPY_INCLUDE"]
++
+ from pkg_resources import parse_version
+ from setuptools import (
+     Command,

@@ -75,7 +75,8 @@ endef
 
 # 001-setup-use-target-byteorder.patch uses this to pick the endianness of the
 # target instead of the one of the build host.
-PYTHON3_PKG_SETUP_VARS:=PANDAS_TARGET_BYTEORDER=$(if $(CONFIG_BIG_ENDIAN),big,little)
+PANDAS_NUMPY_INCLUDE:=$(STAGING_DIR_ROOT)/usr/lib/python$(PYTHON3_VERSION)/site-packages/numpy/core/include
+PYTHON3_PKG_SETUP_VARS:=PANDAS_TARGET_BYTEORDER=$(if $(CONFIG_BIG_ENDIAN),big,little) PANDAS_NUMPY_INCLUDE=$(PANDAS_NUMPY_INCLUDE)
 
 define Package/python3-pandas
   SUBMENU:=Python
