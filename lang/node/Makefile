@@ -145,14 +145,17 @@ endef
 
 NODEJS_CPU:=$(subst aarch64,arm64,$(subst x86_64,x64,$(subst i386,ia32,$(ARCH))))
 
-ifneq ($(CONFIG_ARCH_64BIT),y)
+PKG_CONFIG_DEPENDS:=CONFIG_NODEJS_ICU_NONE CONFIG_NODEJS_ICU_SMALL CONFIG_NODEJS_ICU_SYSTEM \
+	CONFIG_NODEJS_HOST_BIN CONFIG_NODEJS_NPM_KEEP_CACHE CONFIG_NODEJS_NPM_CACHE_DIR
+
+ifeq ($(ARCH),i386)
 FORCE_32BIT:=-m32
 endif
 
 MAKE_VARS+= \
 	DESTCPU=$(NODEJS_CPU) \
 	NO_LOAD='cctest.target.mk embedtest.target.mk node_mksnapshot.target.mk overlapped-checker.target.mk \
-		mkcodecache.target.mk tools/v8_gypfiles/torque_base.target.mk tools/v8_gypfiles/v8_init.target.mk' \
+		mkcodecache.target.mk' \
 	LD_LIBRARY_PATH=$(STAGING_DIR_HOSTPKG)/share/icu/current/lib
 
 HOST_MAKE_VARS+=NO_LOAD='cctest.target.mk embedtest.target.mk overlapped-checker.target.mk'
@@ -161,7 +164,11 @@ CONFIGURE_VARS:= \
 	CC="$(TARGET_CC) $(TARGET_OPTIMIZATION)" \
 	CXX="$(TARGET_CXX) $(TARGET_OPTIMIZATION)" \
 	CC_host="$(HOSTCC) $(FORCE_32BIT)" \
-	CXX_host="$(HOSTCXX) $(FORCE_32BIT)"
+	CXX_host="$(HOSTCXX) $(FORCE_32BIT)" \
+    CFLAGS="$(TARGET_CFLAGS)" \
+    CXXFLAGS="$(TARGET_CXXFLAGS) -I$(STAGING_DIR)/usr/include" \
+    LDFLAGS="$(TARGET_LDFLAGS)"
+
 
 CONFIGURE_ARGS:= \
 	--dest-cpu=$(NODEJS_CPU) \
@@ -182,6 +189,15 @@ HOST_CONFIGURE_ARGS:= \
 	--dest-os=$(if $(findstring Darwin,$(HOST_OS)),mac,linux) \
 	--with-intl=small-icu \
 	--prefix=$(STAGING_DIR_HOSTPKG)
+
+define Build/Configure
+	$(call Build/Configure/Default)
+	grep -q "host_cxx_is_biarch" $(PKG_BUILD_DIR)/config.gypi || \
+		sed -i "s/'host_arch': 'x64'/'host_cxx_is_biarch': 0, 'host_arch': 'x64'/" \
+			$(PKG_BUILD_DIR)/config.gypi
+	@grep -n "host_cxx_is_biarch" $(PKG_BUILD_DIR)/config.gypi || \
+		echo "WARN: host_cxx_is_biarch 没写进 config.gypi，host 工具可能还会被加 -m32"
+endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
