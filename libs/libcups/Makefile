@@ -16,7 +16,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cups
 PKG_VERSION:=2.3.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-source.tar.gz
 PKG_SOURCE_URL:=https://github.com/apple/cups/releases/download/v$(PKG_VERSION)/
@@ -78,6 +78,7 @@ CONFIGURE_ARGS+=--with-cups-user="nobody" \
 		--disable-acl \
 		--disable-dbus \
 		--disable-dnssd \
+		--disable-avahi \
 		--disable-launchd \
 		--disable-ldap \
 		--disable-pam \
