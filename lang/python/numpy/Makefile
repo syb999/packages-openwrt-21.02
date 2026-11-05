@@ -29,6 +29,10 @@ include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
 include ../python3-package.mk
 
+ifndef CONFIG_NUMPY_OPENBLAS_SUPPORT
+PYTHON3_PKG_SETUP_VARS:=NPY_BLAS_LIBS= NPY_LAPACK_LIBS=
+endif
+
 define Package/python3-numpy
   SUBMENU:=Python
   SECTION:=lang
