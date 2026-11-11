@@ -45,6 +45,10 @@ PKG_CONFIG_DEPENDS:= \
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
+ICONV_FULL_PREFIX:=$(STAGING_DIR)/usr/lib/libiconv-full
+PKG_BUILD_DEPENDS+=libiconv-full
+TARGET_LDFLAGS:=-L$(ICONV_FULL_PREFIX)/lib -Wl,-rpath-link=$(ICONV_FULL_PREFIX)/lib $(TARGET_LDFLAGS)
+
 define Package/php8/Default
   SUBMENU:=PHP8
   SECTION:=lang
@@ -277,13 +281,8 @@ else
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_php8-mod-iconv),)
-  ifeq ($(CONFIG_BUILD_NLS),y)
-    CONFIGURE_VARS+= iconv_impl_name="gnu_libiconv"
-    CONFIGURE_ARGS+= --with-iconv=shared,"$(ICONV_PREFIX)"
-  else
-    CONFIGURE_VARS+= ac_cv_func_iconv=yes
-    CONFIGURE_ARGS+= --with-iconv=shared
-  endif
+  CONFIGURE_VARS+= iconv_impl_name="gnu_libiconv"
+  CONFIGURE_ARGS+= --with-iconv=shared,"$(ICONV_FULL_PREFIX)"
 else
   CONFIGURE_ARGS+= --without-iconv
 endif
@@ -650,7 +649,7 @@ $(eval $(call BuildModule,ftp,FTP,+PACKAGE_php8-mod-ftp:libopenssl))
 $(eval $(call BuildModule,gd,GD graphics,+PACKAGE_php8-mod-gd:libgd-full))
 $(eval $(call BuildModule,gettext,Gettext,+PACKAGE_php8-mod-gettext:libintl-full))
 $(eval $(call BuildModule,gmp,GMP,+PACKAGE_php8-mod-gmp:libgmp))
-$(eval $(call BuildModule,iconv,iConv,$(ICONV_DEPENDS)))
+$(eval $(call BuildModule,iconv,iConv,+libiconv-full))
 $(eval $(call BuildModule,imap,IMAP,+PACKAGE_php8-mod-imap:libopenssl +libpam +PACKAGE_php8-mod-imap:uw-imap))
 $(eval $(call BuildModule,intl,Internationalization Functions,+PACKAGE_php8-mod-intl:icu +PHP8_FULLICUDATA:icu-full-data))
 $(eval $(call BuildModule,ldap,LDAP,+PACKAGE_php8-mod-ldap:libopenldap +PACKAGE_php8-mod-ldap:libsasl2))
