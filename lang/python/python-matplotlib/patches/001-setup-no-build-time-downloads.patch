@@ -1,0 +1,31 @@
+--- a/setup.py
++++ b/setup.py
+@@ -313,12 +313,7 @@
+     package_data=package_data,
+ 
+     python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
+-    setup_requires=[
+-        "certifi>=2020.06.20",
+-        "numpy>=1.17",
+-        "setuptools_scm>=4,<7",
+-        "setuptools_scm_git_archive",
+-    ],
++    setup_requires=[],
+     install_requires=[
+         "cycler>=0.10",
+         "fonttools>=4.22.0",
+@@ -335,13 +330,7 @@
+             os.environ.get("CIBUILDWHEEL", "0") != "1"
+         ) else []
+     ),
+-    use_scm_version={
+-        "version_scheme": "release-branch-semver",
+-        "local_scheme": "node-and-date",
+-        "write_to": "lib/matplotlib/_version.py",
+-        "parentdir_prefix_version": "matplotlib-",
+-        "fallback_version": "0.0+UNKNOWN",
+-    },
++    version=os.environ.get("PY_PKG_VERSION", "0+unknown"),
+     cmdclass={
+         "test": NoopTestCommand,
+         "build_ext": BuildExtraLibraries,
