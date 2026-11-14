@@ -1,0 +1,25 @@
+--- /dev/null
++++ b/setup.py
+@@ -0,0 +1,22 @@
++"""Minimal setup.py for the python3-package.mk flow of this tree.
++
++Upstream ships this sdist with pyproject.toml only (PEP 621 [project] table,
++read by setuptools >= 61); this tree builds with setuptools 58.1.0 and a plain
++"setup.py install", so the metadata, the src/ layout and the runtime data files
++have to be declared here.
++"""
++
++import os
++
++from setuptools import find_packages, setup
++
++setup(
++    name="python-pptx",
++    version=os.environ.get("PY_PKG_VERSION", "0+unknown"),
++    description="Create, read, and update PowerPoint 2007+ (.pptx) files.",
++    license="MIT",
++    python_requires=">=3.8",
++    package_dir={"": "src"},
++    packages=find_packages("src", include=["pptx", "pptx.*"]),
++    package_data={"pptx": ["templates/*", "py.typed"]},
++)
