@@ -8,12 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-typing-extensions
-PKG_VERSION:=3.7.4.3
+PKG_VERSION:=4.12.2
 PKG_RELEASE:=1
 
+# 3.7.4.3 (the 21.02 upstream version) has no TypeAlias (3.10.0.0) nor Self
+# (4.0.0), which pypdf imports on python < 3.10 / < 3.11. 4.x is a superset of
+# the 3.x API, so the packages that only use Protocol/Literal from it
+# (python-pptx, python-twisted, python-aiohttp) are unaffected.
 PYPI_NAME:=typing-extensions
 PYPI_SOURCE_NAME:=typing_extensions
-PKG_HASH:=99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c
+PKG_HASH:=1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8
 
 PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec@nic.cz>
 PKG_LICENSE:=PSF-2.0

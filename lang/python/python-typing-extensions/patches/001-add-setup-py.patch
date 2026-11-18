@@ -1,0 +1,26 @@
+--- /dev/null
++++ b/setup.py
+@@ -0,0 +1,23 @@
++#!/usr/bin/env python3
++"""Minimal setup.py for the OpenWrt package framework.
++
++typing_extensions >= 4.6 ships only a pyproject.toml (flit_core backend) with
++the module in src/, while the framework installs via "setup.py install".
++Without this file the build silently installs nothing but an UNKNOWN
++egg-info directory.
++"""
++
++import os
++
++from setuptools import setup
++
++setup(
++    name="typing_extensions",
++    version=os.environ.get("PY_PKG_VERSION", "0+unknown"),
++    description="Backported and Experimental Type Hints for Python 3.8+",
++    license="PSF-2.0",
++    url="https://github.com/python/typing_extensions",
++    python_requires=">=3.8",
++    py_modules=["typing_extensions"],
++    package_dir={"": "src"},
++)
